@@ -1,0 +1,58 @@
+import React from "react";
+import { StyleSheet, Text, Image, View } from "react-native";
+import { TextInput } from "react-native-paper";
+
+const textColor = "#707070";
+const borderColor = "#D4D4D4";
+const white = "#FFFFFF";
+
+const EditTextField = () => {
+  const [text, setText] = React.useState("");
+
+  return (
+    <View style={styles.editTextBox}>
+      <Image
+        source={require("../../assets/pin.png")}
+        style={{ width: 10, height: 15, resizeMode: "contain" }}
+      />
+      <TextInput
+        style={{ position: "relative" }}
+        label="Full Name"
+        value={text}
+        mode="outlined"
+        onChangeText={(text) => setText(text)}
+        theme={{
+          colors: {
+            placeholder: borderColor,
+            text: textColor,
+            primary: borderColor,
+            underlineColor: borderColor,
+            background: "transparent",
+          },
+        }}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  editTextBox: {
+    width: 250,
+    height: 50,
+  },
+
+  customStyle: {
+    borderColor: textColor,
+  },
+});
+
+export default EditTextField;
+ theme={{
+          colors: {
+            placeholder: borderColor,
+            text: textColor,
+            primary: borderColor,
+            underlineColor: borderColor,
+            background: "transparent",
+          },
+        }}
