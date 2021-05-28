@@ -22,7 +22,7 @@ const img4 = "../../assets/post_img.png";
 
 const HomeScreenCards = (props) => {
   return (
-    <View onClic style={styles.container}>
+    <View style={styles.container}>
       <View
         style={{
           alignContent: "flex-end",

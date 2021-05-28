@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, StyleSheet, View } from "react-native";
 
-const ActiveRideScreen = () => {
+const ActiveRideScreen = ({ navigation }) => {
   return (
     <View>
       <Text>ActiveRideScreen Screen end helsdasdasd </Text>

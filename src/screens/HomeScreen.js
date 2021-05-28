@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
   StyleSheet,
@@ -8,6 +8,8 @@ import {
   Alert,
   Modal,
   TouchableOpacity,
+  FlatList,
+  Button,
 } from "react-native";
 import {
   createDrawerNavigator,
@@ -15,177 +17,139 @@ import {
   DrawerItem,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { NavigationContainer } from "@react-navigation/native";
+
 import HomeScreenCards from "../component/HomeScreenCards";
-import SearchRide from "./SearchRide";
-import ActiveRideScreen from "./ActiveRidesScreen";
-import Icon from "react-native-ionicons";
-
-import { Ionicons } from "@expo/vector-icons";
-import Settings from "./Settings";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "../component/Constants";
-const light_blue = "#F5FAFF";
+
+import { PostApi } from "../component/ApiCalls";
+import Server_Urls from "../component/Server_Urls";
+import Settings from "./Settings";
+import { createStackNavigator } from "@react-navigation/stack";
+
 const Drawer = createDrawerNavigator();
+const HelpStack = createStackNavigator();
 const onPost = () => {};
-
-const RideHistory = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>RideHistory Screen</Text>
-      <Text>RideHistory Screen</Text>
-      <Text>RideHistory Screen</Text>
-      <Text>Notifications Screen</Text>
-    </View>
-  );
-};
-
-const Payments = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Payments Screen</Text>
-      <Text>Payments Screen</Text>
-      <Text>Payments Screen</Text>
-      <Text>Payments Screen</Text>
-    </View>
-  );
-};
-
-const Help = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Help Screen</Text>
-      <Text>Help Screen</Text>
-      <Text>Help Screen</Text>
-      <Text>Help Screen</Text>
-    </View>
-  );
-};
-
-const Vechiles = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Vechiles Screen</Text>
-      <Text>Vechiles Screen</Text>
-      <Text>Vechiles Screen</Text>
-      <Text>Vechiles Screen</Text>
-    </View>
-  );
-};
-
-const LogoutScreen = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Logout Screen</Text>
-      <Text>Logout Screen</Text>
-      <Text>Logout Screen</Text>
-      <Text>Logout Screen</Text>
-    </View>
-  );
-};
+const LOGIN_CHECK = "user_login_status";
 
 const DrawerContent = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const once = false;
+  const two = false;
   return (
-    <View style={styles.container}>
-      <View style={styles.topNav}>
-        <TouchableOpacity
-          style={styles.imageDrawer}
-          onPress={() => navigation.openDrawer()}
-        >
-          <Image
-            style={styles.imageDrawer}
-            source={require("../../assets/menu.png")}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>HomeScreen</Text>
-        <Image
-          style={styles.imageNoti}
-          source={require("../../assets/notification.png")}
-        />
-      </View>
-
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => Alert.alert("Dialog closed")}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <TouchableOpacity
-              style={{
-                alignItems: "flex-end",
-                alignSelf: "flex-end",
-              }}
-              onPress={() => {
-                setModalVisible(!modalVisible);
-              }}
-            >
+    <View style={{ flex: 1 }}>
+      <View style={styles.container}>
+        <Modal animationType="fade" transparent={true} visible={isLoading}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
               <Image
-                source={require("../../assets/cross.png")}
-                style={{ width: 15, height: 15 }}
+                style={styles.modalImage}
+                source={require("../../assets/profile_complete_alert.png")}
               />
-            </TouchableOpacity>
-
-            <Image
-              style={styles.modalImage}
-              source={require("../../assets/profile_complete_alert.png")}
-            />
-
-            <Text
-              style={{
-                marginBottom: 5,
-                textAlign: "center",
-                color: "#707070",
-                fontWeight: "bold",
-                fontSize: 16,
-              }}
-            >
-              Complete Your Profile To Continue..
-            </Text>
-
-            <Text
-              style={{
-                marginBottom: 5,
-                textAlign: "center",
-                color: "#666666",
-              }}
-            >
-              You need to complete your profile first to find the companion you
-              are searching for ride.
-            </Text>
-
-            <TouchableHighlight
-              style={{ ...styles.openButton, backgroundColor: "#1E90FF" }}
-              onPress={() => {
-                setModalVisible(!modalVisible);
-                navigation.navigate("Search");
-              }}
-            >
-              <Text style={styles.textStyle}>Complete Profile</Text>
-            </TouchableHighlight>
+              <Text
+                style={{
+                  marginBottom: 5,
+                  textAlign: "center",
+                  color: "#707070",
+                  fontWeight: "bold",
+                  fontSize: 16,
+                }}
+              >
+                Loading...
+              </Text>
+            </View>
           </View>
+        </Modal>
+
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => Alert.alert("Dialog closed")}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TouchableOpacity
+                style={{
+                  alignItems: "flex-end",
+                  alignSelf: "flex-end",
+                }}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  navigation.navigate("SearchRide");
+                }}
+              >
+                <Image
+                  source={require("../../assets/cross.png")}
+                  style={{ width: 15, height: 15 }}
+                />
+              </TouchableOpacity>
+
+              <Image
+                style={styles.modalImage}
+                source={require("../../assets/profile_complete_alert.png")}
+              />
+
+              <Text
+                style={{
+                  marginBottom: 5,
+                  textAlign: "center",
+                  color: "#707070",
+                  fontWeight: "bold",
+                  fontSize: 16,
+                }}
+              >
+                Complete Your Profile To Continue..
+              </Text>
+
+              <Text
+                style={{
+                  marginBottom: 5,
+                  textAlign: "center",
+                  color: "#666666",
+                }}
+              >
+                You need to complete your profile first to find the companion
+                you are searching for ride.
+              </Text>
+
+              <TouchableOpacity
+                style={{ ...styles.openButton, backgroundColor: "#1E90FF" }}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  navigation.navigate("Profile", {
+                    screen: "Update Profile",
+                  });
+                }}
+              >
+                <Text style={styles.textStyle}>Complete Profile</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        {/* onPress={() => HomeScreenApi()} */}
+
+        <View style={styles.rowItems}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <HomeScreenCards
+              title1={"Search"}
+              desc1={"Don't wait for the ride"}
+              desc2={"Search out now"}
+              img={true}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.push("PostRide")}>
+            <HomeScreenCards
+              title1={"Post"}
+              desc1={"Don't travel alone"}
+              desc2={" Post for the companion"}
+              img={false}
+            />
+          </TouchableOpacity>
         </View>
-      </Modal>
-
-      <View style={styles.rowItems}>
-        <TouchableHighlight onPress={() => setModalVisible(true)}>
-          <HomeScreenCards
-            title1={"Search"}
-            desc1={"Don't wait for the ride"}
-            desc2={"Search out now"}
-            img={true}
-          />
-        </TouchableHighlight>
-
-        <TouchableHighlight onPress={onPost}>
-          <HomeScreenCards
-            title1={"Post"}
-            desc1={"Don't travel alone"}
-            desc2={" Post for the companion"}
-            img={false}
-          />
-        </TouchableHighlight>
       </View>
     </View>
   );
@@ -193,10 +157,10 @@ const DrawerContent = ({ navigation }) => {
 
 const CustomDrawerContent = (props) => {
   const { state, ...rest } = props;
-  const newState = { ...state }; //copy from state before applying any filter. do not change original state
-  newState.routes = newState.routes.filter(
-    (item) => !["Drawer", "Search"].includes(item.name)
-  ); //replace "Login' with your route name
+  const newState = { ...state };
+  // newState.routes = newState.routes.filter(
+  //   (item) => !["Drawer", "Search"].includes(item.name)
+  // );
 
   return (
     <View style={{ flex: 1 }}>
@@ -249,89 +213,325 @@ const CustomDrawerContent = (props) => {
   );
 };
 
-const HomeScreen = () => {
+const componentDidMount = async () => {
+  var params = {
+    phone_no: "12345679",
+    vehicle_id: "5fe1daadb9597b3ee8400a58",
+  };
+
+  var formBody = [];
+  for (var property in params) {
+    var encodedKey = encodeURIComponent(property);
+    var encodedValue = encodeURIComponent(params[property]);
+    formBody.push(encodedKey + "=" + encodedValue);
+  }
+  formBody = formBody.join("&");
+
+  fetch("https://bidnow.maticstoday.com/ride/get_single_vehicle", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+    },
+    body: formBody,
+  })
+    .then((response) => response.json())
+    .then((my_vehicle) => {
+      console.log(
+        "POST Response",
+        "Response Body -> " + JSON.stringify(my_vehicle)
+      );
+    });
+};
+
+const getData = async () => {
+  try {
+    const value = await AsyncStorage.getItem(LOGIN_CHECK);
+    if (value != null) {
+      console.log("value is there" + value);
+      setData = true;
+      return value;
+    } else {
+      console.log("value is null");
+      setData = false;
+      return null;
+    }
+  } catch (e) {
+    // error reading value
+  }
+};
+
+const HomeScreen = ({ navigation }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState(true);
+  const once = false;
+  const two = false;
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Image
+          source={require("../../assets/notification.png")}
+          style={{
+            resizeMode: "contain",
+            width: 20,
+            marginRight: 20,
+          }}
+        />
+      ),
+      headerLeft: () => (
+        <Image
+          source={require("../../assets/menu.png")}
+          style={{
+            resizeMode: "contain",
+            width: 25,
+            marginLeft: 20,
+          }}
+        />
+      ),
+    });
+  });
+
+  //storeData("03125160047");
+  getData();
+  // HomeScreenApi();
+  useEffect(() => {
+    const params = {
+      phone_no: "12345679",
+      vehicle_id: "5fe1daadb9597b3ee8400a58",
+    };
+    PostApi(Server_Urls.GET_SINGLE_VEHICLE, params).then((response) => {
+      console.log("PostApi ", response);
+      setLoading(false);
+    });
+  }, [once]);
+
+  console.log("loopingkkkkk" + isLoading);
+
+  // useEffect(() => console.log("Data  " + data));
+
+  // removeData();
   return (
-    <Drawer.Navigator
-      overlayColor="transparent"
-      drawerContent={(props) => <CustomDrawerContent {...props} />}
-    >
-      <Drawer.Screen name="Drawer" component={DrawerContent} />
-      <Drawer.Screen
-        name="Ride History"
-        component={RideHistory}
-        options={{
-          drawerIcon: ({ tintColor }) => (
-            <Image
-              source={require("../../assets/copy.png")}
-              style={styles.drawerIcon}
-            />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="My Vechiles"
-        component={Vechiles}
-        options={{
-          drawerIcon: ({ tintColor }) => (
-            <Image
-              source={require("../../assets/car.png")}
-              style={styles.drawerIcon}
-            />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="Payments"
-        component={Payments}
-        options={{
-          drawerIcon: ({ tintColor }) => (
-            <Image
-              source={require("../../assets/credit_card.png")}
-              style={styles.drawerIcon}
-            />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="Settings"
-        component={Settings}
-        options={{
-          drawerIcon: ({ tintColor }) => (
-            <Image
-              source={require("../../assets/settings.png")}
-              style={styles.drawerIcon}
-            />
-          ),
-        }}
-      />
+    <View style={{ flex: 1 }}>
+      <View style={styles.container}>
+        {/*  for going to loginscreen */}
+        <Modal animationType="fade" transparent={true} visible={data}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Image
+                style={styles.modalImage}
+                source={require("../../assets/profile_complete_alert.png")}
+              />
+              <TouchableOpacity
+                style={{ ...styles.openButton, backgroundColor: "#1E90FF" }}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  // navigation.navigate("Profile", {
+                  //   screen: "Update Profile",
+                  // });
 
-      <Drawer.Screen
-        name="Help"
-        component={Help}
-        options={{
-          drawerIcon: ({ tintColor }) => (
-            <Image
-              source={require("../../assets/help.png")}
-              style={styles.drawerIcon}
-            />
-          ),
-        }}
-      />
+                  navigation.navigate("HomeScreenwithTopBar", {
+                    screen: "Login Screen",
+                  });
+                }}
+              >
+                <Text
+                  style={{
+                    marginBottom: 5,
+                    textAlign: "center",
+                    color: "#707070",
+                    fontWeight: "bold",
+                    fontSize: 16,
+                  }}
+                >
+                  Login First
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
-      <Drawer.Screen
-        name="Logout"
-        component={LogoutScreen}
-        options={{
-          drawerIcon: ({ tintColor }) => (
-            <Image
-              source={require("../../assets/log_out.png")}
-              style={styles.drawerIcon}
+        <Modal animationType="fade" transparent={true} visible={isLoading}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <Image
+                style={styles.modalImage}
+                source={require("../../assets/profile_complete_alert.png")}
+              />
+              <Text
+                style={{
+                  marginBottom: 5,
+                  textAlign: "center",
+                  color: "#707070",
+                  fontWeight: "bold",
+                  fontSize: 16,
+                }}
+              >
+                Loading...
+              </Text>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => Alert.alert("Dialog closed")}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TouchableOpacity
+                style={{
+                  alignItems: "flex-end",
+                  alignSelf: "flex-end",
+                }}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  navigation.navigate("SearchRide");
+                }}
+              >
+                <Image
+                  source={require("../../assets/cross.png")}
+                  style={{ width: 15, height: 15 }}
+                />
+              </TouchableOpacity>
+
+              <Image
+                style={styles.modalImage}
+                source={require("../../assets/profile_complete_alert.png")}
+              />
+
+              <Text
+                style={{
+                  marginBottom: 5,
+                  textAlign: "center",
+                  color: "#707070",
+                  fontWeight: "bold",
+                  fontSize: 16,
+                }}
+              >
+                Complete Your Profile To Continue..
+              </Text>
+
+              <Text
+                style={{
+                  marginBottom: 5,
+                  textAlign: "center",
+                  color: "#666666",
+                }}
+              >
+                You need to complete your profile first to find the companion
+                you are searching for ride.
+              </Text>
+
+              <TouchableOpacity
+                style={{ ...styles.openButton, backgroundColor: "#1E90FF" }}
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  navigation.navigate("Profile", {
+                    screen: "Update Profile",
+                  });
+                }}
+              >
+                <Text style={styles.textStyle}>Complete Profile</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+        {/* onPress={() => HomeScreenApi()} */}
+
+        <View style={styles.rowItems}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <HomeScreenCards
+              title1={"Search"}
+              desc1={"Don't wait for the ride"}
+              desc2={"Search out now"}
+              img={true}
             />
-          ),
-        }}
-      />
-      <Drawer.Screen name="Search" component={SearchRide} />
-    </Drawer.Navigator>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => navigation.push("PostRide")}>
+            <HomeScreenCards
+              title1={"Post"}
+              desc1={"Don't travel alone"}
+              desc2={" Post for the companion"}
+              img={false}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+
+    // <Drawer.Navigator
+    //   overlayColor="transparent"
+    //   drawerContent={(props) => <CustomDrawerContent {...props} />}
+    // >
+    //   <Drawer.Screen name="Home" component={DrawerContent} />
+    //   <Drawer.Screen
+    //     name="Ride History"
+    //     component={RideHistory}
+    //     options={{
+    //       drawerIcon: ({ tintColor }) => (
+    //         <Image
+    //           source={require("../../assets/copy.png")}
+    //           style={styles.drawerIcon}
+    //         />
+    //       ),
+    //     }}
+    //   />
+    //   <Drawer.Screen
+    //     name="My Vechiles"
+    //     component={Vechiles}
+    //     options={{
+    //       drawerIcon: ({ tintColor }) => (
+    //         <Image
+    //           source={require("../../assets/car.png")}
+    //           style={styles.drawerIcon}
+    //         />
+    //       ),
+    //     }}
+    //   />
+    //   <Drawer.Screen
+    //     name="Settings"
+    //     component={Settings}
+    //     options={{
+    //       drawerIcon: ({ tintColor }) => (
+    //         <Image
+    //           source={require("../../assets/settings.png")}
+    //           style={styles.drawerIcon}
+    //         />
+    //       ),
+    //     }}
+    //   />
+
+    //   <Drawer.Screen
+    //     name="Help"
+    //     component={Help}
+    //     options={{
+    //       drawerIcon: ({ tintColor }) => (
+    //         <Image
+    //           source={require("../../assets/help.png")}
+    //           style={styles.drawerIcon}
+    //         />
+    //       ),
+    //     }}
+    //   />
+
+    //   <Drawer.Screen
+    //     name="Logout"
+    //     component={LogoutScreen}
+    //     options={{
+    //       drawerIcon: ({ tintColor }) => (
+    //         <Image
+    //           source={require("../../assets/log_out.png")}
+    //           style={styles.drawerIcon}
+    //         />
+    //       ),
+    //     }}
+    //     a
+    //   />
+    // </Drawer.Navigator>
   );
 };
 

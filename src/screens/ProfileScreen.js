@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Colors from "../component/Constants";
 import {
   Text,
@@ -7,32 +7,54 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Modal,
 } from "react-native";
 import Constants from "../component/Constants";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
 
-const handleBackButtonClick = () => {
-  console.log("asdaaasdasdasd");
-  this.props.navigation.goBack(null);
-  return true;
-};
-const ProfileScreen = () => {
+import Server_Urls from "../component/Server_Urls";
+import { PostApi } from "../component/ApiCalls";
+
+const ProfileScreen = ({ navigation }) => {
+  const [isLoading, setLoading] = useState(true);
+  const once = false;
+  const [response, setresponse] = useState();
+
+  useEffect(() => {
+    const params = {
+      phone_no: "12345679",
+    };
+    PostApi(Server_Urls.GET_PROFILE, params).then((response1) => {
+      // console.log("Profile ", response1);
+      setLoading(false);
+      setresponse(response1.PROFILE);
+      console.log("Profile ", response1.PROFILE);
+    });
+  }, [once]);
+
   return (
     <View style={{ flex: 1, backgroundColor: Constants.whiteColor }}>
-      <View style={styles.topNav}>
-        <TouchableOpacity
-          style={styles.imageDrawer}
-          onPress={() => handleBackButtonClick}
-        >
-          <Image
-            style={styles.imageDrawer}
-            source={require("../../assets/back_arrow.png")}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Profile</Text>
-        <Text style={{ flex: 1 }} />
-      </View>
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Image
+              style={styles.modalImage}
+              source={require("../../assets/profile_complete_alert.png")}
+            />
+            <Text
+              style={{
+                marginBottom: 5,
+                textAlign: "center",
+                color: "#707070",
+                fontWeight: "bold",
+                fontSize: 16,
+              }}
+            >
+              Loading...
+            </Text>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView>
         <View
           style={{
@@ -65,7 +87,7 @@ const ProfileScreen = () => {
               fontWeight: "bold",
             }}
           >
-            Ali Rehman
+            {response != null ? response.name : "Johny Pablo"}
           </Text>
 
           <View
@@ -98,7 +120,7 @@ const ProfileScreen = () => {
                 flexWrap: "wrap",
               }}
             >
-              Lives in Abbottabad
+              Lives in {response != null ? response.city : "Abbottabad"}
             </Text>
 
             <View
@@ -125,7 +147,9 @@ const ProfileScreen = () => {
                     marginRight: 10,
                   }}
                 />
-                <Text style={{ color: Constants.textColor }}>Bank Manager</Text>
+                <Text style={{ color: Constants.textColor }}>
+                  {response != null ? response.profession : "Data Scientist"}
+                </Text>
               </View>
 
               <View style={{ flexDirection: "row", flex: 1 }}>
@@ -139,14 +163,15 @@ const ProfileScreen = () => {
                     marginRight: 10,
                   }}
                 />
-                <Text style={{ color: Constants.textColor }}>MBA</Text>
+                <Text style={{ color: Constants.textColor }}>
+                  {response != null ? response.profession : "Bs(CS)"}
+                </Text>
               </View>
             </View>
 
             <View
               style={{
                 flexDirection: "row",
-
                 marginTop: 10,
               }}
             >
@@ -160,7 +185,9 @@ const ProfileScreen = () => {
                   marginRight: 10,
                 }}
               />
-              <Text style={{ color: Constants.textColor }}>MBA </Text>
+              <Text style={{ color: Constants.textColor }}>
+                {response != null ? response.dob : "24/05/1992"}{" "}
+              </Text>
             </View>
 
             <View
@@ -182,7 +209,7 @@ const ProfileScreen = () => {
                 }}
               />
               <Text style={{ color: Constants.textColor, textAlign: "center" }}>
-                alirehman440@gmail.com
+                {response != null ? response.email : "alirehman440@gmail.com"}
               </Text>
             </View>
           </View>
@@ -200,10 +227,9 @@ const ProfileScreen = () => {
               About Me
             </Text>
             <Text style={{ color: Constants.textColor }}>
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa quih
-              officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff
-              elit. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt.
+              {response != null
+                ? response.bio
+                : "Excepteur sint occaecat cupidatat non proident, sunt in culpa quih officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff elit. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt."}
             </Text>
           </View>
 
@@ -241,7 +267,7 @@ const ProfileScreen = () => {
                   marginRight: 7,
                 }}
               >
-                hiking
+                {response != null ? response.interest : "hiking"}
               </Text>
             </View>
           </View>
@@ -268,7 +294,7 @@ const ProfileScreen = () => {
                 marginRight: 4,
               }}
             >
-              Urdu | English
+              {response != null ? response.languages : "Urdu | English"}
             </Text>
           </View>
 
@@ -286,10 +312,9 @@ const ProfileScreen = () => {
               Why I m using Ride Sharing?
             </Text>
             <Text style={{ color: Constants.textColor }}>
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa quih
-              officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff
-              elit. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt.
+              {response != null
+                ? response.ans1
+                : " Excepteur sint occaecat cupidatat non proident, sunt in culpa quih /n officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff /n elit. Excepteur sint occaecat cupidatat non proident, sunt in /n culpa qui officia deserunt."}
             </Text>
           </View>
 
@@ -307,10 +332,9 @@ const ProfileScreen = () => {
               What kind of people would you like for ride share?
             </Text>
             <Text style={{ color: Constants.textColor }}>
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa quih
-              officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff
-              elit. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt.
+              {response != null
+                ? response.ans2
+                : " Excepteur sint occaecat cupidatat non proident, sunt in culpa quih /n officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff /n elit. Excepteur sint occaecat cupidatat non proident, sunt in /n  culpa qui officia deserunt."}
             </Text>
           </View>
 
@@ -328,45 +352,43 @@ const ProfileScreen = () => {
               Any message for passengers?
             </Text>
             <Text style={{ color: Constants.textColor, marginBottom: 15 }}>
-              Excepteur sint occaecat cupidatat non proident, sunt in culpa quih
-              officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff
-              elit. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt.
+              {response != null
+                ? response.ans3
+                : " Excepteur sint occaecat cupidatat non proident, sunt in culpa quih /n officia deserunt. Lorem ipsum dolor sit amet, consectetur adipgfff /n elit. Excepteur sint occaecat cupidatat non proident, sunt in /n culpa qui officia deserunt."}
             </Text>
           </View>
         </View>
       </ScrollView>
-      <TouchableOpacity
-        onPress={() => NavigationContainer.navigate("ActiveRide")}
+
+      <View
+        style={{
+          position: "absolute",
+          marginRight: 15,
+          marginBottom: 15,
+          bottom: 0,
+          right: 0,
+          backgroundColor: Constants.buttonBlue,
+          width: 45,
+          height: 45,
+          justifyContent: "center",
+          alignItems: "center",
+          flex: 1,
+          flexDirection: "row",
+          borderRadius: 23,
+          elevation: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 2, height: 2 },
+          shadowOpacity: 0.8,
+          shadowRadius: 2,
+        }}
       >
-        <View
-          style={{
-            position: "absolute",
-            marginRight: 15,
-            marginBottom: 15,
-            bottom: 0,
-            right: 0,
-            backgroundColor: Constants.buttonBlue,
-            width: 45,
-            height: 45,
-            justifyContent: "center",
-            alignItems: "center",
-            flex: 1,
-            flexDirection: "row",
-            borderRadius: 23,
-            elevation: 8,
-            shadowColor: "#000",
-            shadowOffset: { width: 2, height: 2 },
-            shadowOpacity: 0.8,
-            shadowRadius: 2,
-          }}
-        >
+        <TouchableOpacity onPress={() => navigation.push("Update Profile")}>
           <Image
             source={require("../../assets/edit.png")}
             style={{ width: 20, height: 20, resizeMode: "contain" }}
           />
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -429,6 +451,49 @@ const styles = StyleSheet.create({
     color: Colors.textColor,
     textAlign: "center",
     flex: 2,
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  openButton: {
+    backgroundColor: "#F194FF",
+    borderRadius: 5,
+    padding: 10,
+    elevation: 2,
+    marginBottom: 10,
+    marginTop: 10,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+
+  modalImage: {
+    width: 130,
+    height: 80,
+    marginBottom: 15,
+    resizeMode: "contain",
   },
 });
 

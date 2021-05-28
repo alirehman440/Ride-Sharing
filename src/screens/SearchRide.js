@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import {
   View,
   Text,
@@ -12,15 +13,6 @@ import { Card } from "react-native-paper";
 const SearchRide = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.topNav}>
-        <TouchableOpacity style={styles.imageDrawe}>
-          <Image
-            style={styles.imageDrawer}
-            source={require("../../assets/back_arrow.png")}
-          />
-        </TouchableOpacity>
-        <Text style={styles.title}>Search Screen</Text>
-      </View>
       <View style={styles.innerContainer}>
         <View
           style={{
@@ -136,17 +128,48 @@ const SearchRide = () => {
                 alignSelf: "flex-end",
               }}
             >
-              <Image
-                source={require("../../assets/calender.png")}
-                style={{
-                  width: 30,
-                  height: 30,
-                  resizeMode: "contain",
-                  alignContent: "center",
-                  alignItems: "center",
-                  alignSelf: "center",
-                }}
-              />
+              <TouchableOpacity
+                onPress={() => (
+                  <DatePicker
+                    style={{ width: 200 }}
+                    date={this.state.date}
+                    mode="date"
+                    placeholder="select date"
+                    format="YYYY-MM-DD"
+                    minDate="2016-05-01"
+                    maxDate="2016-06-01"
+                    confirmBtnText="Confirm"
+                    cancelBtnText="Cancel"
+                    customStyles={{
+                      dateIcon: {
+                        position: "absolute",
+                        left: 0,
+                        top: 4,
+                        marginLeft: 0,
+                      },
+                      dateInput: {
+                        marginLeft: 36,
+                      },
+                      // ... You can check the source to find the other keys.
+                    }}
+                    onDateChange={(date) => {
+                      this.setState({ date: date });
+                    }}
+                  />
+                )}
+              >
+                <Image
+                  source={require("../../assets/calender.png")}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    resizeMode: "contain",
+                    alignContent: "center",
+                    alignItems: "center",
+                    alignSelf: "center",
+                  }}
+                />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
